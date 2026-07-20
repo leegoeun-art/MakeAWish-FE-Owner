@@ -1,0 +1,94 @@
+import { useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { Sparkle, X } from '@phosphor-icons/react'
+import { usePortfolioStore } from '../../store/usePortfolioStore'
+import PageHeader from '../../components/ui/PageHeader'
+import Card from '../../components/ui/Card'
+import Button from '../../components/ui/Button'
+
+export default function PortfolioForm() {
+  const { portfolioId } = useParams()
+  const navigate = useNavigate()
+  const { getById, createPortfolio, updatePortfolio, recommendTags } = usePortfolioStore()
+  const existing = portfolioId ? getById(portfolioId) : null
+
+  const [title, setTitle] = useState(existing?.title || '')
+  const [description, setDescription] = useState(existing?.description || '')
+  const [tags, setTags] = useState(existing?.tags || [])
+  const [recommending, setRecommending] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  const handleRecommend = async () => {
+    setRecommending(true)
+    const suggested = await recommendTags(title)
+    setTags((prev) => [...new Set([...prev, ...suggested])].slice(0, 6))
+    setRecommending(false)
+  }
+
+  const handleSave = async () => {
+    setSaving(true)
+    const payload = { title, description, tags }
+    if (existing) await updatePortfolio(existing.id, payload)
+    else await createPortfolio(payload)
+    setSaving(false)
+    navigate('/portfolio')
+  }
+
+  return (
+    <div className="pb-6">
+      <PageHeader title={existing ? '포트폴리오 수정' : '포트폴리오 등록'} back />
+
+      <div className="flex flex-col gap-4 px-5">
+        <div className="flex h-40 items-center justify-center rounded-3xl bg-cake-pink-50 text-cake-pink-300">
+          {existing ? (
+            <img src={existing.imageUrl} alt={existing.title} className="h-full w-full rounded-3xl object-cover" />
+          ) : (
+            <span className="text-sm font-medium">탭하여 이미지 업로드 (프로토타입: 자동 첨부)</span>
+          )}
+        </div>
+
+        <Card>
+          <label className="text-xs font-semibold text-cake-ink-soft">작품 제목</label>
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="예: 파스텔 무지개 버터크림 케이크"
+            className="mt-1 w-full rounded-xl border border-cake-pink-200 px-3 py-2 text-sm outline-none focus:border-cake-pink-400"
+          />
+          <label className="mt-3 block text-xs font-semibold text-cake-ink-soft">설명</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+            placeholder="케이크에 대한 설명을 적어주세요"
+            className="mt-1 w-full rounded-xl border border-cake-pink-200 px-3 py-2 text-sm outline-none focus:border-cake-pink-400"
+          />
+        </Card>
+
+        <Card>
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-bold text-cake-ink">태그</p>
+            <Button variant="secondary" onClick={handleRecommend} loading={recommending} className="text-xs">
+              <Sparkle size={14} weight="fill" /> AI 태그 추천
+            </Button>
+          </div>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {tags.length === 0 && <p className="text-xs text-cake-ink-soft">등록된 태그가 없어요</p>}
+            {tags.map((t) => (
+              <span key={t} className="flex items-center gap-1 rounded-full bg-cake-lavender-100 px-2.5 py-1 text-xs font-medium text-cake-lavender-600">
+                #{t}
+                <button onClick={() => setTags((prev) => prev.filter((tag) => tag !== t))} aria-label="태그 삭제">
+                  <X size={12} />
+                </button>
+              </span>
+            ))}
+          </div>
+        </Card>
+
+        <Button className="w-full" loading={saving} disabled={!title} onClick={handleSave}>
+          {existing ? '수정 완료' : '등록하기'}
+        </Button>
+      </div>
+    </div>
+  )
+}

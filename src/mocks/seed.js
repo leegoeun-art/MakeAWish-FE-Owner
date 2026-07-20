@@ -1,0 +1,288 @@
+import { addDaysIso } from '../lib/time'
+
+export const ORDER_SCHEMA_FIELDS = [
+  { id: 'size', label: '케이크 사이즈', type: 'select', options: ['미니(2호)', '기본(3호)', '빅(5호)'] },
+  { id: 'pickupDate', label: '픽업 희망 날짜', type: 'date' },
+  { id: 'lettering', label: '레터링 문구', type: 'text' },
+  { id: 'refImage', label: '참고 이미지', type: 'image' },
+  { id: 'request', label: '알러지 / 요청사항', type: 'textarea' },
+]
+
+export const INITIAL_ORDERS = [
+  {
+    id: 'order_001',
+    customerName: '김민지',
+    customerPhone: '010-1234-5671',
+    cakeType: '레터링 케이크',
+    requestedDate: addDaysIso(0),
+    pickupTime: '14:00',
+    status: 'PENDING',
+    price: 45000,
+    createdAt: addDaysIso(-1),
+    schemaAnswers: { size: '기본(3호)', pickupDate: addDaysIso(0), lettering: 'Happy Birthday 민지야', refImage: 'https://picsum.photos/seed/order-1/400/400', request: '딸기 알러지 있어요' },
+  },
+  {
+    id: 'order_002',
+    customerName: '이서준',
+    customerPhone: '010-2234-5672',
+    cakeType: '캐릭터 케이크 (공룡)',
+    requestedDate: addDaysIso(0),
+    pickupTime: '16:00',
+    status: 'ACCEPTED',
+    price: 68000,
+    createdAt: addDaysIso(-2),
+    schemaAnswers: { size: '빅(5호)', pickupDate: addDaysIso(0), lettering: '5살 서준이 생일 축하해', refImage: 'https://picsum.photos/seed/order-2/400/400', request: '공룡은 초록색으로 부탁드려요' },
+  },
+  {
+    id: 'order_003',
+    customerName: '박하은',
+    customerPhone: '010-3234-5673',
+    cakeType: '데일리 케이크',
+    requestedDate: addDaysIso(0),
+    pickupTime: '11:00',
+    status: 'IN_PROGRESS',
+    price: 32000,
+    createdAt: addDaysIso(-1),
+    schemaAnswers: { size: '미니(2호)', pickupDate: addDaysIso(0), lettering: '', refImage: '', request: '심플하게 부탁드려요' },
+  },
+  {
+    id: 'order_004',
+    customerName: '최유나',
+    customerPhone: '010-4234-5674',
+    cakeType: '웨딩 케이크 (3단)',
+    requestedDate: addDaysIso(1),
+    pickupTime: '10:00',
+    status: 'PENDING',
+    price: 220000,
+    createdAt: addDaysIso(-3),
+    schemaAnswers: { size: '빅(5호)', pickupDate: addDaysIso(1), lettering: 'M & J', refImage: 'https://picsum.photos/seed/order-4/400/400', request: '화이트+골드 톤으로 부탁드려요' },
+  },
+  {
+    id: 'order_005',
+    customerName: '정도윤',
+    customerPhone: '010-5234-5675',
+    cakeType: '포토 케이크',
+    requestedDate: addDaysIso(0),
+    pickupTime: '18:00',
+    status: 'COMPLETED',
+    price: 52000,
+    createdAt: addDaysIso(-2),
+    schemaAnswers: { size: '기본(3호)', pickupDate: addDaysIso(0), lettering: '우리 가족 화이팅', refImage: 'https://picsum.photos/seed/order-5/400/400', request: '' },
+  },
+  {
+    id: 'order_006',
+    customerName: '강서연',
+    customerPhone: '010-6234-5676',
+    cakeType: '레터링 케이크',
+    requestedDate: addDaysIso(2),
+    pickupTime: '13:00',
+    status: 'PENDING',
+    price: 38000,
+    createdAt: addDaysIso(0),
+    schemaAnswers: { size: '미니(2호)', pickupDate: addDaysIso(2), lettering: 'Congrats!', refImage: '', request: '리본 장식 추가 가능할까요?' },
+  },
+  {
+    id: 'order_007',
+    customerName: '윤지호',
+    customerPhone: '010-7234-5677',
+    cakeType: '캐릭터 케이크 (공주)',
+    requestedDate: addDaysIso(-1),
+    pickupTime: '15:00',
+    status: 'COMPLETED',
+    price: 60000,
+    createdAt: addDaysIso(-4),
+    schemaAnswers: { size: '기본(3호)', pickupDate: addDaysIso(-1), lettering: '지호 공주님 생일축하해', refImage: 'https://picsum.photos/seed/order-7/400/400', request: '' },
+  },
+  {
+    id: 'order_008',
+    customerName: '임채원',
+    customerPhone: '010-8234-5678',
+    cakeType: '답례 떡케이크',
+    requestedDate: addDaysIso(0),
+    pickupTime: '12:00',
+    status: 'REJECTED',
+    price: 30000,
+    createdAt: addDaysIso(-1),
+    rejectReason: '재료 소진으로 제작이 어려워요',
+    schemaAnswers: { size: '미니(2호)', pickupDate: addDaysIso(0), lettering: '', refImage: '', request: '' },
+  },
+  {
+    id: 'order_009',
+    customerName: '한소율',
+    customerPhone: '010-9234-5679',
+    cakeType: '스드메 케이크',
+    requestedDate: addDaysIso(3),
+    pickupTime: '11:30',
+    status: 'PENDING',
+    price: 95000,
+    createdAt: addDaysIso(0),
+    schemaAnswers: { size: '빅(5호)', pickupDate: addDaysIso(3), lettering: '', refImage: 'https://picsum.photos/seed/order-9/400/400', request: '리본 장식 요청드려요' },
+  },
+  {
+    id: 'order_010',
+    customerName: '오은우',
+    customerPhone: '010-1034-5680',
+    cakeType: '베이비샤워 케이크',
+    requestedDate: addDaysIso(0),
+    pickupTime: '15:00',
+    status: 'ACCEPTED',
+    price: 58000,
+    createdAt: addDaysIso(-1),
+    schemaAnswers: { size: '기본(3호)', pickupDate: addDaysIso(0), lettering: 'Welcome Baby Woo', refImage: 'https://picsum.photos/seed/order-10/400/400', request: '파스텔 민트톤으로요' },
+  },
+  {
+    id: 'order_011',
+    customerName: '신재원',
+    customerPhone: '010-1134-5681',
+    cakeType: '레터링 케이크',
+    requestedDate: addDaysIso(-1),
+    pickupTime: '17:00',
+    status: 'COMPLETED',
+    price: 34000,
+    createdAt: addDaysIso(-3),
+    schemaAnswers: { size: '미니(2호)', pickupDate: addDaysIso(-1), lettering: '재원이 승진 축하해', refImage: '', request: '' },
+  },
+  {
+    id: 'order_012',
+    customerName: '조아름',
+    customerPhone: '010-1234-5682',
+    cakeType: '커스텀 캐릭터 케이크',
+    requestedDate: addDaysIso(1),
+    pickupTime: '14:30',
+    status: 'IN_PROGRESS',
+    price: 89000,
+    createdAt: addDaysIso(-2),
+    schemaAnswers: { size: '빅(5호)', pickupDate: addDaysIso(1), lettering: '', refImage: 'https://picsum.photos/seed/order-12/400/400', request: '반려견 그림 넣어주세요' },
+  },
+]
+
+export const INITIAL_EXTRA_CHARGES = [
+  { id: 'extra_001', orderId: 'order_002', reason: '토핑 추가 (초코볼)', amount: 5000, createdAt: addDaysIso(-1) },
+  { id: 'extra_002', orderId: 'order_009', reason: '리본 장식 추가', amount: 10000, createdAt: addDaysIso(0) },
+]
+
+export const INITIAL_PAYMENTS = [
+  { orderId: 'order_005', amount: 52000, method: 'CARD', status: 'PAID', paidAt: addDaysIso(0) },
+  { orderId: 'order_007', amount: 60000, method: 'CARD', status: 'PAID', paidAt: addDaysIso(-1) },
+  { orderId: 'order_011', amount: 34000, method: 'TRANSFER', status: 'PAID', paidAt: addDaysIso(-1) },
+]
+
+export const INITIAL_CHATS = {
+  order_002: [
+    { id: 'm1', sender: 'customer', text: '안녕하세요! 공룡 색깔은 초록색으로 부탁드려도 될까요?', time: '10:12' },
+    { id: 'm2', sender: 'store', text: '네 물론이죠! 초록색 공룡으로 예쁘게 만들어드릴게요 🦖', time: '10:15' },
+  ],
+  order_010: [
+    { id: 'm1', sender: 'customer', text: '민트톤으로 부탁드린 베이비샤워 케이크 진행 잘 되고 있나요?', time: '09:30' },
+    { id: 'm2', sender: 'store', text: '네 지금 크림 작업 중이에요! 오후 3시까지 준비될 예정입니다 :)', time: '09:40' },
+  ],
+  order_012: [
+    { id: 'm1', sender: 'customer', text: '반려견 사진 파일 보내드려도 될까요?', time: '어제 20:04' },
+    { id: 'm2', sender: 'store', text: '네네 보내주시면 참고해서 그려드릴게요!', time: '어제 20:10' },
+  ],
+}
+
+export const INITIAL_PORTFOLIOS = [
+  { id: 'p1', title: '파스텔 무지개 버터크림 케이크', tags: ['버터크림', '파스텔', '생일'], imageUrl: 'https://picsum.photos/seed/cake-1/600/600', description: '알록달록 파스텔톤 버터크림 케이크' },
+  { id: 'p2', title: '미니멀 화이트 웨딩케이크', tags: ['웨딩', '미니멀', '화이트'], imageUrl: 'https://picsum.photos/seed/cake-2/600/600', description: '심플하고 우아한 3단 웨딩케이크' },
+  { id: 'p3', title: '공룡 캐릭터 케이크', tags: ['캐릭터', '아이생일', '공룡'], imageUrl: 'https://picsum.photos/seed/cake-3/600/600', description: '아이들이 좋아하는 공룡 캐릭터 케이크' },
+  { id: 'p4', title: '플라워 레터링 케이크', tags: ['플라워', '레터링', '기념일'], imageUrl: 'https://picsum.photos/seed/cake-4/600/600', description: '생화 느낌의 플라워 장식 레터링 케이크' },
+  { id: 'p5', title: '스머프 캐릭터 케이크', tags: ['캐릭터', '아이생일'], imageUrl: 'https://picsum.photos/seed/cake-5/600/600', description: '파란 스머프 캐릭터 입체 케이크' },
+  { id: 'p6', title: '베이비샤워 클라우드 케이크', tags: ['베이비샤워', '파스텔', '구름'], imageUrl: 'https://picsum.photos/seed/cake-6/600/600', description: '몽글몽글 구름 장식의 베이비샤워 케이크' },
+  { id: 'p7', title: '초코 드립 케이크', tags: ['초코', '데일리'], imageUrl: 'https://picsum.photos/seed/cake-7/600/600', description: '진한 초콜릿 드립 데일리 케이크' },
+  { id: 'p8', title: '곰돌이 반달 케이크', tags: ['캐릭터', '반달', '귀여움'], imageUrl: 'https://picsum.photos/seed/cake-8/600/600', description: '반달 모양의 귀여운 곰돌이 케이크' },
+  { id: 'p9', title: '리본 장식 골드 케이크', tags: ['골드', '리본', '프리미엄'], imageUrl: 'https://picsum.photos/seed/cake-9/600/600', description: '골드 리본으로 포인트를 준 프리미엄 케이크' },
+]
+
+export const PORTFOLIO_TAG_POOL = [
+  '파스텔', '버터크림', '생일', '웨딩', '미니멀', '캐릭터', '아이생일', '플라워', '레터링',
+  '기념일', '베이비샤워', '초코', '데일리', '골드', '리본', '프리미엄', '귀여움', '한입케이크',
+]
+
+export const INITIAL_REVIEWS = [
+  { id: 'r1', customerName: '이지은', rating: 5, content: '레터링이 정말 예뻤어요! 다음에도 또 주문할게요', reply: null, createdAt: addDaysIso(-3) },
+  { id: 'r2', customerName: '박준서', rating: 4, content: '맛있었는데 픽업 시간이 조금 늦어졌어요', reply: '소중한 후기 감사합니다! 다음엔 더 신경쓸게요 :)', createdAt: addDaysIso(-5) },
+  { id: 'r3', customerName: '최나은', rating: 5, content: '아이가 너무 좋아했어요 감사합니다', reply: null, createdAt: addDaysIso(-6) },
+  { id: 'r4', customerName: '김도현', rating: 3, content: '사진이랑 조금 다른 느낌이었어요', reply: null, createdAt: addDaysIso(-8) },
+  { id: 'r5', customerName: '오세훈', rating: 5, content: '포장까지 완벽했습니다', reply: '감사합니다 사장님 마음까지 담아 포장했어요!', createdAt: addDaysIso(-10) },
+  { id: 'r6', customerName: '한유정', rating: 4, content: '친절하고 빨랐어요', reply: null, createdAt: addDaysIso(-12) },
+]
+
+export const INITIAL_STORE_PROFILE = {
+  storeName: '달콤공방',
+  ownerName: '허예진',
+  category: '홈베이킹 / 디저트',
+  address: '서울특별시 마포구 월드컵로 123',
+  phone: '010-9876-5432',
+  profileImage: 'https://picsum.photos/seed/store-profile/300/300',
+  intro: '',
+}
+
+export const INITIAL_BUSINESS_LICENSE = {
+  businessName: '달콤공방',
+  businessNumber: '123-45-67890',
+  ownerName: '허예진',
+  address: '서울특별시 마포구 월드컵로 123',
+  openDate: '2022-03-15',
+}
+
+export const PROFILE_SUGGESTIONS = [
+  '대표 메뉴 사진을 3장 이상 등록하면 노출 확률이 32% 올라가요',
+  "소개글에 '당일 픽업 가능' 문구를 추가해보세요",
+  "최근 인기 태그 '파스텔톤'을 포트폴리오에 반영해보세요",
+  '리뷰 답글을 남기면 재주문율이 평균 18% 높아져요',
+]
+
+export const PRICE_ANALYSIS = {
+  myAvgPrice: 52000,
+  marketAvgPrice: 58000,
+  comparisonByCategory: [
+    { category: '레터링 케이크', my: 38000, market: 42000 },
+    { category: '캐릭터 케이크', my: 65000, market: 70000 },
+    { category: '웨딩 케이크', my: 220000, market: 250000 },
+    { category: '데일리 케이크', my: 32000, market: 35000 },
+  ],
+}
+
+export const REVIEW_SUMMARY = {
+  averageRating: 4.3,
+  totalCount: 6,
+  keywords: ['친절함', '퀄리티 좋음', '포장 꼼꼼', '레터링 예쁨'],
+}
+
+export const STORE_INTRO_DRAFT =
+  "안녕하세요, 정성 가득한 홈베이킹 케이크샵 '달콤공방'입니다 🍰\n아이 생일부터 웨딩까지, 하나하나 손으로 그려내는 레터링 케이크를 만나보세요."
+
+export const TODAY_BRIEFING = {
+  date: addDaysIso(0),
+  summary: '오늘은 주문 5건이 접수되어 있어요. 그 중 2건은 아직 수락 대기 중이니 먼저 확인해주세요!',
+  pendingCount: 2,
+  inProgressCount: 2,
+  expectedRevenue: 255000,
+}
+
+const monthsBack = (n) => {
+  const d = new Date()
+  d.setDate(1)
+  d.setMonth(d.getMonth() - n)
+  return `${d.getMonth() + 1}월`
+}
+
+export const REVENUE_STATS = [5, 4, 3, 2, 1, 0].map((n, i) => ({
+  month: monthsBack(n),
+  revenue: [2350000, 2680000, 3120000, 2900000, 3450000, 3980000][i],
+}))
+
+export const PRODUCT_STATS = [
+  { name: '레터링 케이크', revenue: 1200000, count: 28 },
+  { name: '캐릭터 케이크', revenue: 980000, count: 14 },
+  { name: '웨딩 케이크', revenue: 660000, count: 3 },
+  { name: '데일리 케이크', revenue: 420000, count: 35 },
+]
+
+export const PRODUCTION_TIME_STATS = [
+  { name: '레터링 케이크', avgMinutes: 75 },
+  { name: '캐릭터 케이크', avgMinutes: 150 },
+  { name: '웨딩 케이크', avgMinutes: 320 },
+  { name: '데일리 케이크', avgMinutes: 40 },
+]

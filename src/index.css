@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Gowun Dodum', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Gowun Dodum', ui-sans-serif, system-ui, sans-serif;
+
+  --color-cake-cream: #fffaf3;
+  --color-cake-pink-50: #fff5f8;
+  --color-cake-pink-100: #ffe6ee;
+  --color-cake-pink-200: #ffd0e0;
+  --color-cake-pink-300: #ffaecb;
+  --color-cake-pink-400: #ff8bb8;
+  --color-cake-pink-500: #ff6aa3;
+  --color-cake-pink-600: #f14a89;
+  --color-cake-pink-700: #d63872;
+
+  --color-cake-mint-100: #dff7ec;
+  --color-cake-mint-400: #7fd8ac;
+  --color-cake-mint-600: #3fb87e;
+
+  --color-cake-lavender-100: #efe6ff;
+  --color-cake-lavender-400: #b79cf5;
+  --color-cake-lavender-600: #8f6ce0;
+
+  --color-cake-yellow-100: #fff3c4;
+  --color-cake-yellow-400: #ffd452;
+  --color-cake-yellow-600: #f0ac00;
+
+  --color-cake-ink: #4a3b3f;
+  --color-cake-ink-soft: #8a7a7e;
+
+  --shadow-cake: 0 10px 30px -12px rgba(241, 74, 137, 0.35);
+  --shadow-cake-sm: 0 4px 14px -6px rgba(241, 74, 137, 0.25);
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  background: var(--color-cake-cream);
+  color: var(--color-cake-ink);
+  font-family: var(--font-sans);
+  overscroll-behavior-y: none;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-cake-pink-200);
+  border-radius: 999px;
+}

@@ -1,0 +1,75 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Gear } from '@phosphor-icons/react'
+import { useOrderStore } from '../../store/useOrderStore'
+import PageHeader from '../../components/ui/PageHeader'
+import Card from '../../components/ui/Card'
+import { StatusBadge } from '../../components/ui/Badge'
+import EmptyState from '../../components/ui/EmptyState'
+
+const FILTERS = [
+  { key: 'ALL', label: '전체' },
+  { key: 'PENDING', label: '수락 대기' },
+  { key: 'ACCEPTED', label: '제작 예정' },
+  { key: 'IN_PROGRESS', label: '제작 중' },
+  { key: 'COMPLETED', label: '완료' },
+]
+
+export default function OrderList() {
+  const navigate = useNavigate()
+  const { orders } = useOrderStore()
+  const [filter, setFilter] = useState('ALL')
+
+  const filtered = filter === 'ALL' ? orders : orders.filter((o) => o.status === filter)
+  const sorted = [...filtered].sort((a, b) => (a.requestedDate < b.requestedDate ? 1 : -1))
+
+  return (
+    <div>
+      <PageHeader
+        title="주문 관리"
+        subtitle={`총 ${orders.length}건`}
+        right={
+          <button
+            onClick={() => navigate('/orders/schema')}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-cake-ink-soft active:bg-cake-pink-100"
+            aria-label="주문서 양식 설정"
+          >
+            <Gear size={20} />
+          </button>
+        }
+      />
+
+      <div className="scrollbar-none flex gap-2 overflow-x-auto px-5 pb-1">
+        {FILTERS.map((f) => (
+          <button
+            key={f.key}
+            onClick={() => setFilter(f.key)}
+            className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+              filter === f.key ? 'bg-cake-pink-500 text-white' : 'bg-white text-cake-ink-soft ring-1 ring-cake-pink-100'
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-3 flex flex-col gap-3 px-5">
+        {sorted.length === 0 && <EmptyState icon="🔍" title="해당 조건의 주문이 없어요" />}
+        {sorted.map((order) => (
+          <Card
+            key={order.id}
+            onClick={() => navigate(`/orders/${order.id}`)}
+            className="flex cursor-pointer items-center justify-between active:scale-[0.98]"
+          >
+            <div>
+              <p className="text-xs text-cake-ink-soft">{order.requestedDate} · {order.pickupTime}</p>
+              <p className="mt-0.5 font-semibold text-cake-ink">{order.customerName} · {order.cakeType}</p>
+              <p className="mt-0.5 text-xs font-medium text-cake-pink-500">{order.price.toLocaleString()}원</p>
+            </div>
+            <StatusBadge status={order.status} />
+          </Card>
+        ))}
+      </div>
+    </div>
+  )
+}
