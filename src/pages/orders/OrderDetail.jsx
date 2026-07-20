@@ -4,11 +4,11 @@ import {
   ChatCircleDots,
   CreditCard,
   Sparkle,
-  PaintBrush,
   Plus,
   Phone,
 } from '@phosphor-icons/react'
 import { useOrderStore } from '../../store/useOrderStore'
+import { useChatStore } from '../../store/useChatStore'
 import PageHeader from '../../components/ui/PageHeader'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
@@ -28,16 +28,14 @@ export default function OrderDetail() {
     createExtraCharge,
     createPayment,
     createMessageDraft,
-    createStyleAnalysis,
     messageDrafts,
-    styleAnalyses,
   } = useOrderStore()
+  const { hasThread } = useChatStore()
 
   const order = getOrderById(orderId)
   const extraCharges = getExtraChargesByOrder(orderId)
   const payment = getPaymentByOrder(orderId)
   const draft = messageDrafts[orderId]
-  const styleResult = styleAnalyses[orderId]
 
   const [statusLoading, setStatusLoading] = useState(false)
   const [rejecting, setRejecting] = useState(false)
@@ -47,7 +45,6 @@ export default function OrderDetail() {
   const [extraAmount, setExtraAmount] = useState('')
   const [paying, setPaying] = useState(false)
   const [draftLoading, setDraftLoading] = useState(false)
-  const [styleLoading, setStyleLoading] = useState(false)
 
   if (!order) {
     return (
@@ -141,6 +138,11 @@ export default function OrderDetail() {
         >
           <span className="flex items-center gap-2 text-sm font-semibold text-cake-ink">
             <ChatCircleDots size={20} className="text-cake-pink-500" /> 고객과 채팅하기
+            {hasThread(orderId) && (
+              <span className="flex items-center gap-1 rounded-full bg-cake-pink-50 px-2 py-0.5 text-[10px] font-semibold text-cake-pink-500">
+                채팅 중
+              </span>
+            )}
           </span>
           <span className="text-xs text-cake-ink-soft">이동 →</span>
         </button>
@@ -238,39 +240,6 @@ export default function OrderDetail() {
               }}
             >
               {draft ? '다시 생성하기' : 'AI 메시지 초안 생성'}
-            </Button>
-          )}
-        </Card>
-
-        <Card>
-          <p className="flex items-center gap-1.5 text-sm font-bold text-cake-ink"><PaintBrush size={18} className="text-cake-pink-500" /> 스타일 매칭 분석</p>
-          {styleLoading && <Spinner label="참고 이미지 스타일을 분석하고 있어요…" />}
-          {!styleLoading && styleResult && (
-            <div className="mt-2">
-              <div className="flex flex-wrap gap-1.5">
-                {styleResult.tags.map((t) => (
-                  <span key={t} className="rounded-full bg-cake-lavender-100 px-2.5 py-1 text-xs font-medium text-cake-lavender-600">{t}</span>
-                ))}
-              </div>
-              <div className="mt-2 flex items-center gap-2">
-                <div className="h-2 flex-1 overflow-hidden rounded-full bg-cake-pink-50">
-                  <div className="h-full rounded-full bg-cake-pink-400" style={{ width: `${styleResult.similarity}%` }} />
-                </div>
-                <span className="text-xs font-bold text-cake-pink-500">{styleResult.similarity}%</span>
-              </div>
-            </div>
-          )}
-          {!styleLoading && (
-            <Button
-              variant="secondary"
-              className="mt-3 w-full"
-              onClick={async () => {
-                setStyleLoading(true)
-                await createStyleAnalysis(orderId)
-                setStyleLoading(false)
-              }}
-            >
-              {styleResult ? '다시 분석하기' : '스타일 분석 실행'}
             </Button>
           )}
         </Card>

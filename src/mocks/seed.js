@@ -216,6 +216,15 @@ export const INITIAL_STORE_PROFILE = {
   phone: '010-9876-5432',
   profileImage: 'https://picsum.photos/seed/store-profile/300/300',
   intro: '',
+  businessHours: [
+    { day: '월', open: '09:00', close: '20:00', closed: false },
+    { day: '화', open: '09:00', close: '20:00', closed: false },
+    { day: '수', open: '09:00', close: '20:00', closed: false },
+    { day: '목', open: '09:00', close: '20:00', closed: false },
+    { day: '금', open: '09:00', close: '20:00', closed: false },
+    { day: '토', open: '10:00', close: '18:00', closed: false },
+    { day: '일', open: '10:00', close: '18:00', closed: true },
+  ],
 }
 
 export const INITIAL_BUSINESS_LICENSE = {

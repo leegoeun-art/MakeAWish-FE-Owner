@@ -10,6 +10,8 @@ export const useChatStore = create(
 
       getMessages: (orderId) => get().chats[orderId] || [],
 
+      hasThread: (orderId) => (get().chats[orderId]?.length ?? 0) > 0,
+
       sendMessage: (orderId, text) => {
         const msg = { id: genId('m'), sender: 'store', text, time: '방금' }
         set((state) => ({

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Star, Sparkle, TrendUp, IdentificationCard, PencilSimple } from '@phosphor-icons/react'
+import { Star, Sparkle, TrendUp, IdentificationCard, PencilSimple, Clock } from '@phosphor-icons/react'
 import { useShopStore } from '../../store/useShopStore'
 import { useAuthStore } from '../../store/useAuthStore'
 import PageHeader from '../../components/ui/PageHeader'
@@ -27,7 +27,13 @@ export default function StoreManage() {
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState(profile)
   const [savingProfile, setSavingProfile] = useState(false)
+  const [hoursEditing, setHoursEditing] = useState(false)
+  const [hoursForm, setHoursForm] = useState(profile.businessHours)
+  const [savingHours, setSavingHours] = useState(false)
   const [introLoading, setIntroLoading] = useState(false)
+  const [introEditing, setIntroEditing] = useState(false)
+  const [introForm, setIntroForm] = useState(profile.intro)
+  const [savingIntro, setSavingIntro] = useState(false)
   const [suggestLoading, setSuggestLoading] = useState(false)
   const [priceLoading, setPriceLoading] = useState(false)
   const [replyOpenFor, setReplyOpenFor] = useState(null)
@@ -38,6 +44,24 @@ export default function StoreManage() {
     await updateProfile(form)
     setSavingProfile(false)
     setEditing(false)
+  }
+
+  const updateHoursRow = (day, patch) => {
+    setHoursForm((rows) => rows.map((r) => (r.day === day ? { ...r, ...patch } : r)))
+  }
+
+  const saveHours = async () => {
+    setSavingHours(true)
+    await updateProfile({ businessHours: hoursForm })
+    setSavingHours(false)
+    setHoursEditing(false)
+  }
+
+  const saveIntro = async () => {
+    setSavingIntro(true)
+    await updateProfile({ intro: introForm })
+    setSavingIntro(false)
+    setIntroEditing(false)
   }
 
   return (
@@ -90,15 +114,115 @@ export default function StoreManage() {
         </Card>
 
         <Card>
-          <p className="flex items-center gap-1.5 text-sm font-bold text-cake-ink"><Sparkle size={16} className="text-cake-pink-500" /> 소개글</p>
-          {introLoading ? (
-            <Spinner label="소개글을 작성하고 있어요…" />
-          ) : (
+          <div className="flex items-center justify-between">
+            <p className="flex items-center gap-1.5 text-sm font-bold text-cake-ink"><Clock size={16} className="text-cake-pink-500" /> 운영 시간</p>
+            <button
+              onClick={() => {
+                if (hoursEditing) {
+                  saveHours()
+                } else {
+                  setHoursForm(profile.businessHours)
+                  setHoursEditing(true)
+                }
+              }}
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-cake-pink-50 text-cake-pink-500 active:scale-95"
+            >
+              <PencilSimple size={15} />
+            </button>
+          </div>
+
+          {!hoursEditing && (
+            <div className="mt-2 flex flex-col gap-1">
+              {profile.businessHours.map((h) => (
+                <div key={h.day} className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-cake-ink">{h.day}</span>
+                  {h.closed ? (
+                    <span className="text-cake-ink-soft">휴무</span>
+                  ) : (
+                    <span className="text-cake-ink-soft">{h.open} - {h.close}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {hoursEditing && (
+            <div className="mt-3 flex flex-col gap-2">
+              {hoursForm.map((h) => (
+                <div key={h.day} className="flex items-center gap-2 text-xs">
+                  <span className="w-4 font-semibold text-cake-ink">{h.day}</span>
+                  <input
+                    type="time"
+                    value={h.open}
+                    disabled={h.closed}
+                    onChange={(e) => updateHoursRow(h.day, { open: e.target.value })}
+                    className="flex-1 rounded-lg border border-cake-pink-200 px-2 py-1 text-xs outline-none disabled:bg-gray-50 disabled:text-cake-ink-soft"
+                  />
+                  <span className="text-cake-ink-soft">~</span>
+                  <input
+                    type="time"
+                    value={h.close}
+                    disabled={h.closed}
+                    onChange={(e) => updateHoursRow(h.day, { close: e.target.value })}
+                    className="flex-1 rounded-lg border border-cake-pink-200 px-2 py-1 text-xs outline-none disabled:bg-gray-50 disabled:text-cake-ink-soft"
+                  />
+                  <label className="flex items-center gap-1 text-cake-ink-soft">
+                    <input
+                      type="checkbox"
+                      checked={h.closed}
+                      onChange={(e) => updateHoursRow(h.day, { closed: e.target.checked })}
+                    />
+                    휴무
+                  </label>
+                </div>
+              ))}
+              <Button loading={savingHours} onClick={saveHours} className="mt-1 w-full">저장하기</Button>
+            </div>
+          )}
+        </Card>
+
+        <Card>
+          <div className="flex items-center justify-between">
+            <p className="flex items-center gap-1.5 text-sm font-bold text-cake-ink"><Sparkle size={16} className="text-cake-pink-500" /> 소개글</p>
+            {!introLoading && (
+              <button
+                onClick={() => {
+                  if (introEditing) {
+                    saveIntro()
+                  } else {
+                    setIntroForm(profile.intro)
+                    setIntroEditing(true)
+                  }
+                }}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-cake-pink-50 text-cake-pink-500 active:scale-95"
+              >
+                <PencilSimple size={15} />
+              </button>
+            )}
+          </div>
+
+          {introLoading && <Spinner label="소개글을 작성하고 있어요…" />}
+
+          {!introLoading && introEditing && (
+            <div className="mt-2 flex flex-col gap-2">
+              <textarea
+                value={introForm}
+                onChange={(e) => setIntroForm(e.target.value)}
+                placeholder="소개글을 직접 입력해주세요"
+                rows={4}
+                className="w-full rounded-2xl border border-cake-pink-200 p-3 text-sm leading-relaxed outline-none focus:border-cake-pink-400"
+              />
+              <Button loading={savingIntro} onClick={saveIntro} className="w-full">저장하기</Button>
+            </div>
+          )}
+
+          {!introLoading && !introEditing && (
             <p className="mt-2 whitespace-pre-line rounded-2xl bg-cake-pink-50 p-3 text-sm leading-relaxed text-cake-ink">
-              {profile.intro || '아직 소개글이 없어요. AI로 자동 생성해보세요!'}
+              {profile.intro || '아직 소개글이 없어요. AI로 자동 생성하거나 직접 입력해보세요!'}
             </p>
           )}
-          {!introLoading && (
+
+          {!introLoading && !introEditing && (
             <Button
               variant="secondary"
               className="mt-3 w-full"

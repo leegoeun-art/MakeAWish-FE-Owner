@@ -34,7 +34,7 @@ export default function PortfolioList() {
             <div className="p-2.5">
               <p className="truncate text-xs font-semibold text-cake-ink">{p.title}</p>
               <div className="mt-1 flex flex-wrap gap-1">
-                {p.tags.slice(0, 2).map((t) => (
+                {p.tags.map((t) => (
                   <span key={t} className="rounded-full bg-cake-pink-50 px-2 py-0.5 text-[10px] font-medium text-cake-pink-500">
                     #{t}
                   </span>

@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Gear } from '@phosphor-icons/react'
+import { ChatCircleDots } from '@phosphor-icons/react'
 import { useOrderStore } from '../../store/useOrderStore'
+import { useChatStore } from '../../store/useChatStore'
 import PageHeader from '../../components/ui/PageHeader'
 import Card from '../../components/ui/Card'
 import { StatusBadge } from '../../components/ui/Badge'
@@ -18,6 +19,7 @@ const FILTERS = [
 export default function OrderList() {
   const navigate = useNavigate()
   const { orders } = useOrderStore()
+  const { hasThread } = useChatStore()
   const [filter, setFilter] = useState('ALL')
 
   const filtered = filter === 'ALL' ? orders : orders.filter((o) => o.status === filter)
@@ -31,10 +33,9 @@ export default function OrderList() {
         right={
           <button
             onClick={() => navigate('/orders/schema')}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-cake-ink-soft active:bg-cake-pink-100"
-            aria-label="주문서 양식 설정"
+            className="rounded-full bg-cake-pink-50 px-3 py-1.5 text-xs font-semibold text-cake-pink-600 active:bg-cake-pink-100"
           >
-            <Gear size={20} />
+            양식 설정
           </button>
         }
       />
@@ -66,7 +67,14 @@ export default function OrderList() {
               <p className="mt-0.5 font-semibold text-cake-ink">{order.customerName} · {order.cakeType}</p>
               <p className="mt-0.5 text-xs font-medium text-cake-pink-500">{order.price.toLocaleString()}원</p>
             </div>
-            <StatusBadge status={order.status} />
+            <div className="flex items-center gap-1.5">
+              {hasThread(order.id) && (
+                <span className="flex items-center gap-1 rounded-full bg-cake-pink-50 px-2 py-1 text-[10px] font-semibold text-cake-pink-500">
+                  <ChatCircleDots size={12} weight="fill" /> 채팅 중
+                </span>
+              )}
+              <StatusBadge status={order.status} />
+            </div>
           </Card>
         ))}
       </div>

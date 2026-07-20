@@ -13,6 +13,7 @@ import PortfolioList from './pages/portfolio/PortfolioList'
 import PortfolioForm from './pages/portfolio/PortfolioForm'
 import StoreManage from './pages/store/StoreManage'
 import Stats from './pages/stats/Stats'
+import ChatManage from './pages/chat/ChatManage'
 
 function Gate({ children }) {
   const { isLoggedIn, onboarded } = useAuthStore()
@@ -45,6 +46,7 @@ export default function App() {
           <Route path="/portfolio/:portfolioId/edit" element={<PortfolioForm />} />
           <Route path="/store" element={<StoreManage />} />
           <Route path="/stats" element={<Stats />} />
+          <Route path="/chat" element={<ChatManage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/home" replace />} />

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Sparkle, X } from '@phosphor-icons/react'
+import { Sparkle, X, Plus } from '@phosphor-icons/react'
 import { usePortfolioStore } from '../../store/usePortfolioStore'
 import PageHeader from '../../components/ui/PageHeader'
 import Card from '../../components/ui/Card'
@@ -15,6 +15,7 @@ export default function PortfolioForm() {
   const [title, setTitle] = useState(existing?.title || '')
   const [description, setDescription] = useState(existing?.description || '')
   const [tags, setTags] = useState(existing?.tags || [])
+  const [newTag, setNewTag] = useState('')
   const [recommending, setRecommending] = useState(false)
   const [saving, setSaving] = useState(false)
 
@@ -23,6 +24,13 @@ export default function PortfolioForm() {
     const suggested = await recommendTags(title)
     setTags((prev) => [...new Set([...prev, ...suggested])].slice(0, 6))
     setRecommending(false)
+  }
+
+  const handleAddTag = () => {
+    const value = newTag.trim()
+    if (!value || tags.includes(value)) return
+    setTags((prev) => [...prev, value])
+    setNewTag('')
   }
 
   const handleSave = async () => {
@@ -82,6 +90,27 @@ export default function PortfolioForm() {
                 </button>
               </span>
             ))}
+          </div>
+          <div className="mt-3 flex gap-1.5">
+            <input
+              value={newTag}
+              onChange={(e) => setNewTag(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  handleAddTag()
+                }
+              }}
+              placeholder="태그 직접 입력"
+              className="flex-1 rounded-full border border-cake-pink-200 px-3 py-1.5 text-xs outline-none focus:border-cake-pink-400"
+            />
+            <button
+              onClick={handleAddTag}
+              disabled={!newTag.trim()}
+              className="flex items-center gap-1 rounded-full bg-cake-pink-50 px-3 py-1.5 text-xs font-semibold text-cake-pink-500 disabled:opacity-40"
+            >
+              <Plus size={12} /> 추가
+            </button>
           </div>
         </Card>
 

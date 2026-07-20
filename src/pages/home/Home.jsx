@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Sparkle, CaretRight } from '@phosphor-icons/react'
+import { Sparkle, CaretRight, ChartBar } from '@phosphor-icons/react'
 import { useAuthStore } from '../../store/useAuthStore'
 import { useOrderStore } from '../../store/useOrderStore'
 import Card from '../../components/ui/Card'
@@ -31,6 +31,22 @@ export default function Home() {
             예상 매출 {briefing.expectedRevenue.toLocaleString()}원
           </span>
         </div>
+      </Card>
+
+      <Card
+        onClick={() => navigate('/stats')}
+        className="mt-4 flex cursor-pointer items-center justify-between active:scale-[0.98]"
+      >
+        <div className="flex items-center gap-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-cake-mint-100 text-cake-mint-600">
+            <ChartBar size={18} weight="fill" />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-cake-ink">매출관리</p>
+            <p className="text-xs text-cake-ink-soft">매출 통계와 인기 메뉴를 확인해보세요</p>
+          </div>
+        </div>
+        <CaretRight size={16} className="text-cake-ink-soft" />
       </Card>
 
       <div className="mt-6 flex items-center justify-between">

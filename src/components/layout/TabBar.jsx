@@ -1,12 +1,12 @@
 import { NavLink } from 'react-router-dom'
-import { House, Cookie, ImageSquare, Storefront, ChartBar } from '@phosphor-icons/react'
+import { House, Cookie, ImageSquare, Storefront, ChatCircleDots } from '@phosphor-icons/react'
 
 const TABS = [
   { to: '/home', label: '홈', Icon: House },
   { to: '/orders', label: '주문', Icon: Cookie },
+  { to: '/chat', label: '채팅관리', Icon: ChatCircleDots },
   { to: '/portfolio', label: '포트폴리오', Icon: ImageSquare },
   { to: '/store', label: '매장관리', Icon: Storefront },
-  { to: '/stats', label: '통계', Icon: ChartBar },
 ]
 
 export default function TabBar() {

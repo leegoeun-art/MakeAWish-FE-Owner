@@ -50,6 +50,13 @@ export const useShopStore = create(
         return PRICE_ANALYSIS
       },
     }),
-    { name: 'cake-shop' },
+    {
+      name: 'cake-shop',
+      merge: (persistedState, currentState) => ({
+        ...currentState,
+        ...persistedState,
+        profile: { ...currentState.profile, ...persistedState?.profile },
+      }),
+    },
   ),
 )
