@@ -27,7 +27,8 @@ function getAuthToken() {
  * 공통 fetch 요청 함수
  */
 async function request(endpoint, options = {}) {
-  const url = `${BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`
+  const base = options.baseUrl || BASE_URL
+  const url = `${base}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`
   const token = getAuthToken()
 
   const headers = {
