@@ -20,6 +20,7 @@ export default function StoreManage() {
     getReviewSummary,
     requestProfileSuggestions,
     fetchPriceAnalysis,
+    profileError,
   } = useShopStore()
 
   const summary = getReviewSummary()
@@ -112,6 +113,8 @@ export default function StoreManage() {
             <p className="mt-2 text-xs text-cake-ink-soft">{profile.address} · {profile.phone}</p>
           )}
         </Card>
+
+        {profileError && <p className="px-1 text-xs font-medium text-red-500">{profileError}</p>}
 
         <Card>
           <div className="flex items-center justify-between">

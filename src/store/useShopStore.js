@@ -9,6 +9,7 @@ import {
   REVIEW_SUMMARY,
   STORE_INTRO_DRAFT,
 } from '../mocks/seed'
+import * as storeApi from '../api/storeApi'
 
 export const useShopStore = create(
   persist(
@@ -17,10 +18,15 @@ export const useShopStore = create(
       reviews: INITIAL_REVIEWS,
       suggestions: [],
       priceAnalysis: null,
+      profileError: '',
 
       updateProfile: async (data) => {
-        await randomDelay()
-        set((state) => ({ profile: { ...state.profile, ...data } }))
+        set((state) => ({ profile: { ...state.profile, ...data }, profileError: '' }))
+        try {
+          await storeApi.updateStoreProfile(data)
+        } catch (err) {
+          set({ profileError: err.message || '저장에 실패했어요. 다시 시도해주세요' })
+        }
       },
 
       generateIntro: async () => {
