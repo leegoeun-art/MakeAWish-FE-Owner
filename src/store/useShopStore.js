@@ -10,6 +10,7 @@ import {
   STORE_INTRO_DRAFT,
 } from '../mocks/seed'
 import * as storeApi from '../api/storeApi'
+import * as reviewApi from '../api/reviewApi'
 
 export const useShopStore = create(
   persist(
@@ -35,11 +36,30 @@ export const useShopStore = create(
         return STORE_INTRO_DRAFT
       },
 
+      replyError: '',
+
       replyToReview: async (reviewId, text) => {
-        await randomDelay()
-        set((state) => ({
-          reviews: state.reviews.map((r) => (r.id === reviewId ? { ...r, reply: text } : r)),
-        }))
+        set({ replyError: '' })
+        try {
+          await reviewApi.replyToReview(reviewId, text)
+          set((state) => ({
+            reviews: state.reviews.map((r) => (r.id === reviewId ? { ...r, reply: text } : r)),
+          }))
+        } catch (err) {
+          set({ replyError: err.message || '답글 등록에 실패했어요' })
+        }
+      },
+
+      deleteReply: async (reviewId) => {
+        set({ replyError: '' })
+        try {
+          await reviewApi.deleteReviewReply(reviewId)
+          set((state) => ({
+            reviews: state.reviews.map((r) => (r.id === reviewId ? { ...r, reply: null } : r)),
+          }))
+        } catch (err) {
+          set({ replyError: err.message || '답글 삭제에 실패했어요' })
+        }
       },
 
       getReviewSummary: () => REVIEW_SUMMARY,
