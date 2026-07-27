@@ -17,9 +17,9 @@ export async function updatePortfolio(portfolioId, { title, description, imageUr
 
 export async function recommendPortfolioTags({ imageUrl, description }) {
   const res = await client.post(
-    '/api/portfolios/tags/recommend',
-    { imageUrl, description },
+    '/api/ai/portfolios/tags/recommend',
+    { image_url: imageUrl, description },
     { baseUrl: import.meta.env.VITE_AI_API_URL },
   )
-  return res.recommendedTags
+  return res.recommended_tags
 }
