@@ -23,6 +23,7 @@ export default function PortfolioForm() {
   const [imageUrl, setImageUrl] = useState(existing?.imageUrl || null)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [isInpaintingAllowed, setIsInpaintingAllowed] = useState(existing?.isInpaintingAllowed ?? true)
+  const [saveError, setSaveError] = useState('')
 
   const handleImageSelect = async (e) => {
     const file = e.target.files?.[0]
@@ -54,11 +55,17 @@ export default function PortfolioForm() {
 
   const handleSave = async () => {
     setSaving(true)
-    const payload = { title, description, tags }
-    if (existing) await updatePortfolio(existing.id, payload)
-    else await createPortfolio(payload)
-    setSaving(false)
-    navigate('/portfolio')
+    setSaveError('')
+    try {
+      const payload = { title, description, imageUrl, isInpaintingAllowed, tags }
+      if (existing) await updatePortfolio(existing.id, payload)
+      else await createPortfolio(payload)
+      navigate('/portfolio')
+    } catch (err) {
+      setSaveError(err.message || '저장에 실패했어요. 다시 시도해주세요')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -158,7 +165,8 @@ export default function PortfolioForm() {
           </div>
         </Card>
 
-        <Button className="w-full" loading={saving} disabled={!title} onClick={handleSave}>
+        {saveError && <p className="text-center text-xs font-medium text-red-500">{saveError}</p>}
+        <Button className="w-full" loading={saving} disabled={!title || !imageUrl || uploadingImage} onClick={handleSave}>
           {existing ? '수정 완료' : '등록하기'}
         </Button>
       </div>

@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { randomDelay, genId } from '../lib/time'
+import { randomDelay } from '../lib/time'
 import { INITIAL_PORTFOLIOS, PORTFOLIO_TAG_POOL } from '../mocks/seed'
+import * as portfolioApi from '../api/portfolioApi'
 
 export const usePortfolioStore = create(
   persist(
@@ -17,17 +18,19 @@ export const usePortfolioStore = create(
       },
 
       createPortfolio: async (data) => {
-        await randomDelay(600, 1100)
-        const item = { id: genId('p'), imageUrl: 'https://picsum.photos/seed/' + genId('new') + '/600/600', ...data }
+        const res = await portfolioApi.createPortfolio(data)
+        const item = { ...res, id: res.portfolioId }
         set((state) => ({ portfolios: [item, ...state.portfolios] }))
         return item
       },
 
       updatePortfolio: async (id, data) => {
-        await randomDelay()
+        const res = await portfolioApi.updatePortfolio(id, data)
+        const item = { ...res, id: res.portfolioId }
         set((state) => ({
-          portfolios: state.portfolios.map((p) => (p.id === id ? { ...p, ...data } : p)),
+          portfolios: state.portfolios.map((p) => (p.id === id ? { ...p, ...item } : p)),
         }))
+        return item
       },
 
       getById: (id) => get().portfolios.find((p) => p.id === id),
