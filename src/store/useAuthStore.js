@@ -2,25 +2,80 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { randomDelay } from '../lib/time'
 import { INITIAL_BUSINESS_LICENSE } from '../mocks/seed'
+import { socialLogin, devMasterLogin } from '../api/authApi'
 
 export const useAuthStore = create(
   persist(
     (set) => ({
       isLoggedIn: false,
       onboarded: false,
+      token: null,
+      refreshToken: null,
       user: null,
       businessLicenseStatus: 'NONE', // NONE | ANALYZING | DONE
       businessLicense: null,
 
-      loginWithGoogle: async () => {
-        await randomDelay(400, 900)
+      /**
+       * 구글 OAuth 토큰 또는 마스터 토큰으로 백엔드 로그인 API 연동
+       * @param {string} [token='master'] - 구글 인증 토큰 (미입력 시 개발/테스트용 마스터 토큰 사용)
+       */
+      loginWithGoogle: async (token = 'master') => {
+        try {
+          const res =
+            token === 'master' || !token
+              ? await devMasterLogin()
+              : await socialLogin('google', token)
+
+          // 1. 공통 client.js에서 조회할 수 있도록 localStorage에 보관
+          if (res.accessToken) {
+            localStorage.setItem('auth_token', res.accessToken)
+          }
+          if (res.refreshToken) {
+            localStorage.setItem('refresh_token', res.refreshToken)
+          }
+
+          // 2. Zustand 스토어 상태 갱신
+          set({
+            isLoggedIn: true,
+            token: res.accessToken,
+            refreshToken: res.refreshToken,
+            user: {
+              name: res.name || '사장님',
+              email: 'partner@dalkomgongbang.com',
+              avatar: 'https://picsum.photos/seed/owner-avatar/200/200',
+            },
+          })
+          return res
+        } catch (error) {
+          console.error('로그인 API 연동 실패:', error)
+          throw error
+        }
+      },
+
+      logout: () => {
+        localStorage.removeItem('auth_token')
+        localStorage.removeItem('refresh_token')
         set({
-          isLoggedIn: true,
-          user: { name: '허예진', email: 'partner@dalkomgongbang.com', avatar: 'https://picsum.photos/seed/owner-avatar/200/200' },
+          isLoggedIn: false,
+          token: null,
+          refreshToken: null,
+          user: null,
+          onboarded: false,
+          businessLicenseStatus: 'NONE',
+          businessLicense: null,
         })
       },
 
-      logout: () => set({ isLoggedIn: false }),
+      /**
+       * 개발/테스트 중 온보딩 OCR 화면을 다시 확인하거나 테스트할 수 있는 초기화 헬퍼
+       */
+      resetOnboarding: () => {
+        set({
+          onboarded: false,
+          businessLicenseStatus: 'NONE',
+          businessLicense: null,
+        })
+      },
 
       createBusinessLicenseAnalysis: async () => {
         set({ businessLicenseStatus: 'ANALYZING' })

@@ -358,6 +358,36 @@ export default function StoreManage() {
             </Button>
           )}
         </Card>
+
+        {/* 계정 및 온보딩 테스트 설정 카드 */}
+        <Card>
+          <p className="text-sm font-bold text-cake-ink">계정 및 온보딩 테스트 설정</p>
+          <p className="mt-1 text-xs text-cake-ink-soft">
+            테스트 중 온보딩(OCR 사업자등록증 인증) 화면을 처음부터 다시 체험할 수 있습니다.
+          </p>
+          <div className="mt-3 flex gap-2">
+            <Button
+              variant="secondary"
+              className="flex-1 text-xs"
+              onClick={() => {
+                useAuthStore.getState().resetOnboarding()
+                alert('온보딩 상태가 초기화되었습니다! 로그아웃 후 다시 로그인하면 온보딩(OCR 인증) 화면으로 이동합니다.')
+              }}
+            >
+              🔄 온보딩 상태 초기화
+            </Button>
+            <Button
+              variant="secondary"
+              className="flex-1 text-xs text-red-500 hover:bg-red-50 hover:text-red-600"
+              onClick={() => {
+                useAuthStore.getState().logout()
+                window.location.href = '/login'
+              }}
+            >
+              🚪 로그아웃
+            </Button>
+          </div>
+        </Card>
       </div>
     </div>
   )
