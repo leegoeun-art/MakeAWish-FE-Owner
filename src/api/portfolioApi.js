@@ -16,10 +16,13 @@ export async function updatePortfolio(portfolioId, { title, description, imageUr
 }
 
 export async function recommendPortfolioTags({ imageUrl, description }) {
+  // AI 서버에 CORS 설정이 없어 로컬 개발 중엔 vite.config.js의 /ai-proxy로 우회한다.
+  // 프로덕션 빌드에서는 실제 AI 서버 주소로 직접 요청한다 (그땐 서버가 CORS를 허용해야 함).
+  const baseUrl = import.meta.env.DEV ? '/ai-proxy' : import.meta.env.VITE_AI_API_URL
   const res = await client.post(
     '/api/ai/portfolios/tags/recommend',
     { image_url: imageUrl, description },
-    { baseUrl: import.meta.env.VITE_AI_API_URL },
+    { baseUrl },
   )
   return res.recommended_tags
 }
