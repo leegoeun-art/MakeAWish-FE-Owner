@@ -1,7 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { randomDelay } from '../lib/time'
-import { INITIAL_PORTFOLIOS, PORTFOLIO_TAG_POOL } from '../mocks/seed'
+import { INITIAL_PORTFOLIOS } from '../mocks/seed'
 import * as portfolioApi from '../api/portfolioApi'
 
 export const usePortfolioStore = create(
@@ -9,12 +8,8 @@ export const usePortfolioStore = create(
     (set, get) => ({
       portfolios: INITIAL_PORTFOLIOS,
 
-      recommendTags: async (keyword) => {
-        await randomDelay(500, 1000)
-        const shuffled = [...PORTFOLIO_TAG_POOL].sort(() => Math.random() - 0.5)
-        const picked = shuffled.slice(0, 4)
-        if (keyword && !picked.includes(keyword)) picked.unshift(keyword)
-        return [...new Set(picked)].slice(0, 5)
+      recommendTags: async ({ imageUrl, description }) => {
+        return portfolioApi.recommendPortfolioTags({ imageUrl, description })
       },
 
       createPortfolio: async (data) => {

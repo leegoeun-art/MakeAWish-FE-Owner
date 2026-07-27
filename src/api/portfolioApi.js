@@ -14,3 +14,12 @@ export async function createPortfolio({ title, description, imageUrl, isInpainti
 export async function updatePortfolio(portfolioId, { title, description, imageUrl, isInpaintingAllowed, tags }) {
   return client.patch(`/api/portfolios/${portfolioId}`, { title, description, imageUrl, isInpaintingAllowed, tags })
 }
+
+export async function recommendPortfolioTags({ imageUrl, description }) {
+  const res = await client.post(
+    '/api/portfolios/tags/recommend',
+    { imageUrl, description },
+    { baseUrl: import.meta.env.VITE_AI_API_URL },
+  )
+  return res.recommendedTags
+}

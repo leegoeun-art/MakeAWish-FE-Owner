@@ -39,11 +39,20 @@ export default function PortfolioForm() {
     }
   }
 
+  const [recommendError, setRecommendError] = useState('')
+
   const handleRecommend = async () => {
+    if (!imageUrl) return
     setRecommending(true)
-    const suggested = await recommendTags(title)
-    setTags((prev) => [...new Set([...prev, ...suggested])].slice(0, 6))
-    setRecommending(false)
+    setRecommendError('')
+    try {
+      const suggested = await recommendTags({ imageUrl, description })
+      setTags((prev) => [...new Set([...prev, ...suggested])].slice(0, 6))
+    } catch (err) {
+      setRecommendError(err.message || '태그 추천에 실패했어요')
+    } finally {
+      setRecommending(false)
+    }
   }
 
   const handleAddTag = () => {
@@ -108,10 +117,18 @@ export default function PortfolioForm() {
         <Card>
           <div className="flex items-center justify-between">
             <p className="text-sm font-bold text-cake-ink">태그</p>
-            <Button variant="secondary" onClick={handleRecommend} loading={recommending} className="text-xs">
+            <Button
+              variant="secondary"
+              onClick={handleRecommend}
+              loading={recommending}
+              disabled={!imageUrl || uploadingImage}
+              className="text-xs"
+            >
               <Sparkle size={14} weight="fill" /> AI 태그 추천
             </Button>
           </div>
+          {!imageUrl && <p className="mt-1 text-xs text-cake-ink-soft">이미지를 먼저 선택하면 태그를 추천받을 수 있어요</p>}
+          {recommendError && <p className="mt-1 text-xs font-medium text-red-500">{recommendError}</p>}
           <div className="mt-2 flex flex-wrap gap-1.5">
             {tags.length === 0 && <p className="text-xs text-cake-ink-soft">등록된 태그가 없어요</p>}
             {tags.map((t) => (
