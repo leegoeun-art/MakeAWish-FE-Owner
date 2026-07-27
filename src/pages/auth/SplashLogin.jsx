@@ -1,19 +1,42 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { GoogleLogo } from '@phosphor-icons/react'
+import { GoogleLogin } from '@react-oauth/google'
+import { ArrowCounterClockwise, Code } from '@phosphor-icons/react'
 import { useAuthStore } from '../../store/useAuthStore'
 import Button from '../../components/ui/Button'
 
 export default function SplashLogin() {
   const navigate = useNavigate()
-  const { loginWithGoogle, onboarded } = useAuthStore()
+  const { loginWithGoogle, onboarded, resetOnboarding } = useAuthStore()
   const [loading, setLoading] = useState(false)
 
-  const handleLogin = async () => {
-    setLoading(true)
-    await loginWithGoogle()
-    setLoading(false)
-    navigate(onboarded ? '/home' : '/onboarding')
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      setLoading(true)
+      await loginWithGoogle(credentialResponse.credential)
+      setLoading(false)
+      navigate(onboarded ? '/home' : '/onboarding')
+    } catch (error) {
+      setLoading(false)
+      alert('구글 로그인에 실패했습니다: ' + (error.message || '인증 오류'))
+    }
+  }
+
+  const handleDevMasterLogin = async () => {
+    try {
+      setLoading(true)
+      await loginWithGoogle('master')
+      setLoading(false)
+      navigate(onboarded ? '/home' : '/onboarding')
+    } catch (error) {
+      setLoading(false)
+      alert('로그인에 실패했습니다: ' + (error.message || '인증 오류'))
+    }
+  }
+
+  const handleResetOnboarding = () => {
+    resetOnboarding()
+    alert('온보딩 상태가 초기화되었습니다! 지금 로그인하시면 사업자등록증(OCR) 온보딩 화면으로 이동합니다.')
   }
 
   return (
@@ -41,18 +64,44 @@ export default function SplashLogin() {
         </div>
       </div>
 
-      <div className="z-10 w-full max-w-xs">
-        <Button
-          onClick={handleLogin}
-          loading={loading}
-          className="w-full bg-white py-3.5 text-base text-cake-ink shadow-cake ring-1 ring-cake-pink-100 hover:bg-cake-pink-50"
-        >
-          {!loading && <GoogleLogo size={20} weight="bold" className="text-cake-pink-500" />}
-          구글로 시작하기
-        </Button>
-        <p className="mt-3 text-center text-[11px] text-cake-ink-soft">
+      <div className="z-10 flex w-full max-w-xs flex-col items-center gap-3">
+        {/* 1. 웹 구글 공식 OAuth 로그인 버튼 */}
+        <div className="w-full flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => alert('구글 로그인에 실패했습니다. (클라이언트 ID 또는 팝업 차단 확인)')}
+            theme="outline"
+            size="large"
+            width="320"
+            text="signin_with"
+            shape="pill"
+          />
+        </div>
+        <p className="text-center text-[11px] text-cake-ink-soft">
           로그인 시 파트너 이용약관에 동의하는 것으로 간주돼요
         </p>
+
+        {/* 2. 개발/테스트용 간편 로그인 및 온보딩 리셋 영역 */}
+        <div className="mt-4 flex w-full flex-col items-center gap-2.5 rounded-2xl bg-white/60 p-3 ring-1 ring-cake-pink-100">
+          <Button
+            variant="secondary"
+            onClick={handleDevMasterLogin}
+            loading={loading}
+            className="w-full py-2.5 text-xs text-cake-ink font-semibold"
+          >
+            <Code size={16} className="text-cake-pink-500" />
+            🛠️ 개발 모드 간편 로그인 (Master 계정)
+          </Button>
+
+          <button
+            type="button"
+            onClick={handleResetOnboarding}
+            className="flex items-center gap-1 text-[11px] font-medium text-cake-ink-soft underline transition hover:text-cake-pink-600"
+          >
+            <ArrowCounterClockwise size={12} />
+            온보딩 화면(OCR 인증) 다시 체험하기
+          </button>
+        </div>
       </div>
     </div>
   )
