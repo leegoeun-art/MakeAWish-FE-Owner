@@ -23,6 +23,7 @@ export const useOrderStore = create(
       getOrderById: (orderId) => get().orders.find((o) => o.id === orderId),
       getExtraChargesByOrder: (orderId) => get().extraCharges.filter((c) => c.orderId === orderId),
       getPaymentByOrder: (orderId) => get().payments.find((p) => p.orderId === orderId),
+      resetOrders: () => set({ orders: INITIAL_ORDERS }),
 
       updateOrderStatus: async (orderId, status, reason) => {
         await randomDelay()
@@ -60,6 +61,9 @@ export const useOrderStore = create(
         set({ schemaFields: fields })
       },
     }),
-    { name: 'cake-orders' },
+    {
+      name: 'cake-orders',
+      version: 2,
+    },
   ),
 )
