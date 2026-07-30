@@ -1,4 +1,4 @@
-import { useState, Fragment } from 'react'
+import { useState, useEffect, Fragment } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   ChatCircleDots,
@@ -9,6 +9,7 @@ import {
 } from '@phosphor-icons/react'
 import { useOrderStore } from '../../store/useOrderStore'
 import { useChatStore } from '../../store/useChatStore'
+import { fetchOrderById } from '../../api/orderApi'
 import PageHeader from '../../components/ui/PageHeader'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
@@ -32,10 +33,44 @@ export default function OrderDetail() {
   } = useOrderStore()
   const { hasThread } = useChatStore()
 
-  const order = getOrderById(orderId)
+  const mockOrder = getOrderById(orderId)
   const extraCharges = getExtraChargesByOrder(orderId)
   const payment = getPaymentByOrder(orderId)
   const draft = messageDrafts[orderId]
+
+  const [serverOrder, setServerOrder] = useState(null)
+
+  useEffect(() => {
+    let isMounted = true
+    async function loadDetail() {
+      try {
+        const data = await fetchOrderById(orderId)
+        if (isMounted && data) {
+          const mapped = {
+            id: data.id || data.orderId || orderId,
+            status: data.orderStatus || data.status || 'PENDING',
+            customerName: data.customerName || data.userName || (data.orderData && (data.orderData.customerName || data.orderData.name)) || '주문 고객',
+            customerPhone: data.customerPhone || data.phoneNumber || (data.orderData && (data.orderData.customerPhone || data.orderData.phone)) || '010-0000-0000',
+            cakeType: data.cakeType || data.designName || (Array.isArray(data.items) && data.items[0]?.productName) || '주문제작 케이크',
+            price: Number(data.totalPrice ?? data.price ?? 0),
+            requestedDate: data.requestedDate || (data.pickupDate && String(data.pickupDate).split('T')[0]) || '2026-07-30',
+            pickupTime: data.pickupTime || (data.pickupDate && String(data.pickupDate).split('T')[1]?.slice(0, 5)) || '14:00',
+            schemaAnswers: data.schemaAnswers || data.customAnswers || data.orderData || {},
+            ...data,
+          }
+          setServerOrder(mapped)
+        }
+      } catch (error) {
+        console.warn('실서버 주문 상세 내역 조회 실패 (로컬 Mock 사용):', error.message)
+      }
+    }
+    loadDetail()
+    return () => {
+      isMounted = false
+    }
+  }, [orderId])
+
+  const order = serverOrder || mockOrder
 
   const [statusLoading, setStatusLoading] = useState(false)
   const [rejecting, setRejecting] = useState(false)
@@ -61,7 +96,7 @@ export default function OrderDetail() {
     setRejecting(false)
   }
 
-  const totalPrice = order.price + extraCharges.reduce((sum, c) => sum + c.amount, 0)
+  const totalPrice = (Number(order.price) || 0) + extraCharges.reduce((sum, c) => sum + (Number(c.amount) || 0), 0)
 
   return (
     <div className="pb-6">
