@@ -9,7 +9,7 @@ import {
 } from '@phosphor-icons/react'
 import { useOrderStore } from '../../store/useOrderStore'
 import { useChatStore } from '../../store/useChatStore'
-import { fetchOrderById } from '../../api/orderApi'
+import { fetchOrderById, fetchExtraFee } from '../../api/orderApi'
 import PageHeader from '../../components/ui/PageHeader'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
@@ -27,6 +27,7 @@ export default function OrderDetail() {
     getPaymentByOrder,
     updateOrderStatus,
     createExtraCharge,
+    syncExtraChargeFromServer,
     createPayment,
     createMessageDraft,
     messageDrafts,
@@ -60,6 +61,14 @@ export default function OrderDetail() {
           }
           setServerOrder(mapped)
         }
+        try {
+          const feeData = await fetchExtraFee(orderId)
+          if (isMounted && feeData && Number(feeData.extraFee) > 0) {
+            syncExtraChargeFromServer(orderId, { extraFee: feeData.extraFee, reason: feeData.reason })
+          }
+        } catch (feeError) {
+          console.warn('실서버 추가금 조회 실패 (로컬 Mock 사용):', feeError.message)
+        }
       } catch (error) {
         console.warn('실서버 주문 상세 내역 조회 실패 (로컬 Mock 사용):', error.message)
       }
@@ -91,9 +100,18 @@ export default function OrderDetail() {
 
   const changeStatus = async (status, reason) => {
     setStatusLoading(true)
-    await updateOrderStatus(orderId, status, reason)
-    setStatusLoading(false)
-    setRejecting(false)
+    try {
+      await updateOrderStatus(orderId, status, reason)
+      if (serverOrder) {
+        setServerOrder((prev) => ({ ...prev, status }))
+      }
+    } catch (error) {
+      console.error('주문 상태 변경 실패:', error.message)
+      alert('주문 상태 변경 중 오류가 발생했습니다.')
+    } finally {
+      setStatusLoading(false)
+      setRejecting(false)
+    }
   }
 
   const totalPrice = (Number(order.price) || 0) + extraCharges.reduce((sum, c) => sum + (Number(c.amount) || 0), 0)
@@ -217,10 +235,15 @@ export default function OrderDetail() {
                 className="w-full"
                 disabled={!extraReason || !extraAmount}
                 onClick={async () => {
-                  await createExtraCharge(orderId, { reason: extraReason, amount: extraAmount })
-                  setExtraReason('')
-                  setExtraAmount('')
-                  setShowExtraForm(false)
+                  try {
+                    await createExtraCharge(orderId, { reason: extraReason, amount: extraAmount })
+                    setExtraReason('')
+                    setExtraAmount('')
+                    setShowExtraForm(false)
+                  } catch (error) {
+                    console.error('추가금 등록 실패:', error.message)
+                    alert('추가금 등록 중 오류가 발생했습니다.')
+                  }
                 }}
               >
                 추가금 등록

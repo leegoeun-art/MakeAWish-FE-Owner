@@ -4,7 +4,7 @@ import { client } from './client'
  * 로컬 Mock ID(예: 'order_004')이거나 숫자가 아닌 ID인 경우 판단
  * 백엔드 컨트롤러(@PathVariable Long orderId)가 400 Bad Request(For input string) 에러를 뱉는 것을 방지
  */
-function isMockOrderId(orderId) {
+export function isMockOrderId(orderId) {
   return String(orderId).startsWith('order_') || isNaN(Number(orderId))
 }
 
