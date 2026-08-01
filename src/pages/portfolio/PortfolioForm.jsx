@@ -24,6 +24,7 @@ export default function PortfolioForm() {
   const [uploadingImage, setUploadingImage] = useState(false)
   const [isInpaintingAllowed, setIsInpaintingAllowed] = useState(existing?.isInpaintingAllowed ?? true)
   const [saveError, setSaveError] = useState('')
+  const [uploadError, setUploadError] = useState('')
 
   const handleImageSelect = async (e) => {
     const file = e.target.files?.[0]
@@ -31,9 +32,12 @@ export default function PortfolioForm() {
     setImagePreviewUrl(URL.createObjectURL(file))
     setImageUrl(null)
     setUploadingImage(true)
+    setUploadError('')
     try {
       const uploaded = await uploadPortfolioImage(file)
       setImageUrl(uploaded)
+    } catch (err) {
+      setUploadError(err.message || '이미지 업로드에 실패했어요. 다시 시도해주세요')
     } finally {
       setUploadingImage(false)
     }
@@ -95,6 +99,7 @@ export default function PortfolioForm() {
           )}
           <input type="file" accept="image/*" capture="environment" onChange={handleImageSelect} className="hidden" />
         </label>
+        {uploadError && <p className="text-center text-xs font-medium text-red-500">{uploadError}</p>}
 
         <Card>
           <label className="text-xs font-semibold text-cake-ink-soft">작품 제목</label>
