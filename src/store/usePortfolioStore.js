@@ -1,33 +1,34 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { randomDelay, genId } from '../lib/time'
-import { INITIAL_PORTFOLIOS, PORTFOLIO_TAG_POOL } from '../mocks/seed'
+import { genId } from '../lib/time'
+import { INITIAL_PORTFOLIOS } from '../mocks/seed'
+import * as portfolioApi from '../api/portfolioApi'
 
 export const usePortfolioStore = create(
   persist(
     (set, get) => ({
       portfolios: INITIAL_PORTFOLIOS,
 
-      recommendTags: async (keyword) => {
-        await randomDelay(500, 1000)
-        const shuffled = [...PORTFOLIO_TAG_POOL].sort(() => Math.random() - 0.5)
-        const picked = shuffled.slice(0, 4)
-        if (keyword && !picked.includes(keyword)) picked.unshift(keyword)
-        return [...new Set(picked)].slice(0, 5)
+      recommendTags: async ({ imageUrl, description }) => {
+        return portfolioApi.recommendPortfolioTags({ imageUrl, description })
       },
 
       createPortfolio: async (data) => {
-        await randomDelay(600, 1100)
-        const item = { id: genId('p'), imageUrl: 'https://picsum.photos/seed/' + genId('new') + '/600/600', ...data }
+        const res = await portfolioApi.createPortfolio(data)
+        // 백엔드가 성공(201) 시에도 빈 바디를 줄 때가 있어 res가 null일 수 있다.
+        // 그럴 땐 화면에서 입력한 값 + 임시 로컬 id로 채워 넣는다.
+        const item = { ...data, ...res, id: res?.portfolioId ?? genId('p') }
         set((state) => ({ portfolios: [item, ...state.portfolios] }))
         return item
       },
 
       updatePortfolio: async (id, data) => {
-        await randomDelay()
+        const res = await portfolioApi.updatePortfolio(id, data)
+        const item = { ...data, ...res, id: res?.portfolioId ?? id }
         set((state) => ({
-          portfolios: state.portfolios.map((p) => (p.id === id ? { ...p, ...data } : p)),
+          portfolios: state.portfolios.map((p) => (p.id === id ? { ...p, ...item } : p)),
         }))
+        return item
       },
 
       getById: (id) => get().portfolios.find((p) => p.id === id),

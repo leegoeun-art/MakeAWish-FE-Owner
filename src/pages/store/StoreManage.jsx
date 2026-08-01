@@ -20,6 +20,9 @@ export default function StoreManage() {
     getReviewSummary,
     requestProfileSuggestions,
     fetchPriceAnalysis,
+    profileError,
+    deleteReply,
+    replyError,
   } = useShopStore()
 
   const summary = getReviewSummary()
@@ -112,6 +115,8 @@ export default function StoreManage() {
             <p className="mt-2 text-xs text-cake-ink-soft">{profile.address} · {profile.phone}</p>
           )}
         </Card>
+
+        {profileError && <p className="px-1 text-xs font-medium text-red-500">{profileError}</p>}
 
         <Card>
           <div className="flex items-center justify-between">
@@ -271,7 +276,25 @@ export default function StoreManage() {
                   <span className="text-xs text-cake-yellow-500">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span>
                 </div>
                 <p className="mt-0.5 text-xs text-cake-ink-soft">{r.content}</p>
-                {r.reply && <p className="mt-1 rounded-xl bg-cake-pink-50 p-2 text-xs text-cake-ink">사장님 답글: {r.reply}</p>}
+                {r.reply && replyOpenFor !== r.id && (
+                  <div className="mt-1 rounded-xl bg-cake-pink-50 p-2">
+                    <p className="text-xs text-cake-ink">사장님 답글: {r.reply}</p>
+                    <div className="mt-1 flex gap-2">
+                      <button
+                        onClick={() => {
+                          setReplyText(r.reply)
+                          setReplyOpenFor(r.id)
+                        }}
+                        className="text-xs font-semibold text-cake-pink-500"
+                      >
+                        수정
+                      </button>
+                      <button onClick={() => deleteReply(r.id)} className="text-xs font-semibold text-red-400">
+                        삭제
+                      </button>
+                    </div>
+                  </div>
+                )}
                 {!r.reply && replyOpenFor !== r.id && (
                   <button onClick={() => setReplyOpenFor(r.id)} className="mt-1 text-xs font-semibold text-cake-pink-500">답글 남기기</button>
                 )}
@@ -298,6 +321,7 @@ export default function StoreManage() {
               </div>
             ))}
           </div>
+          {replyError && <p className="mt-2 text-xs font-medium text-red-500">{replyError}</p>}
         </Card>
 
         <Card>

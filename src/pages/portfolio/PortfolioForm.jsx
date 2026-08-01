@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Sparkle, X, Plus } from '@phosphor-icons/react'
 import { usePortfolioStore } from '../../store/usePortfolioStore'
+import { uploadPortfolioImage } from '../../api/portfolioApi'
 import PageHeader from '../../components/ui/PageHeader'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
@@ -18,12 +19,40 @@ export default function PortfolioForm() {
   const [newTag, setNewTag] = useState('')
   const [recommending, setRecommending] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [imagePreviewUrl, setImagePreviewUrl] = useState(existing?.imageUrl || null)
+  const [imageUrl, setImageUrl] = useState(existing?.imageUrl || null)
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [isInpaintingAllowed, setIsInpaintingAllowed] = useState(existing?.isInpaintingAllowed ?? true)
+  const [saveError, setSaveError] = useState('')
+
+  const handleImageSelect = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setImagePreviewUrl(URL.createObjectURL(file))
+    setImageUrl(null)
+    setUploadingImage(true)
+    try {
+      const uploaded = await uploadPortfolioImage(file)
+      setImageUrl(uploaded)
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
+  const [recommendError, setRecommendError] = useState('')
 
   const handleRecommend = async () => {
+    if (!imageUrl) return
     setRecommending(true)
-    const suggested = await recommendTags(title)
-    setTags((prev) => [...new Set([...prev, ...suggested])].slice(0, 6))
-    setRecommending(false)
+    setRecommendError('')
+    try {
+      const suggested = await recommendTags({ imageUrl, description })
+      setTags((prev) => [...new Set([...prev, ...suggested])].slice(0, 6))
+    } catch (err) {
+      setRecommendError(err.message || '태그 추천에 실패했어요')
+    } finally {
+      setRecommending(false)
+    }
   }
 
   const handleAddTag = () => {
@@ -35,11 +64,17 @@ export default function PortfolioForm() {
 
   const handleSave = async () => {
     setSaving(true)
-    const payload = { title, description, tags }
-    if (existing) await updatePortfolio(existing.id, payload)
-    else await createPortfolio(payload)
-    setSaving(false)
-    navigate('/portfolio')
+    setSaveError('')
+    try {
+      const payload = { title, description, imageUrl, isInpaintingAllowed, tags }
+      if (existing) await updatePortfolio(existing.id, payload)
+      else await createPortfolio(payload)
+      navigate('/portfolio')
+    } catch (err) {
+      setSaveError(err.message || '저장에 실패했어요. 다시 시도해주세요')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -47,13 +82,19 @@ export default function PortfolioForm() {
       <PageHeader title={existing ? '포트폴리오 수정' : '포트폴리오 등록'} back />
 
       <div className="flex flex-col gap-4 px-5">
-        <div className="flex h-40 items-center justify-center rounded-3xl bg-cake-pink-50 text-cake-pink-300">
-          {existing ? (
-            <img src={existing.imageUrl} alt={existing.title} className="h-full w-full rounded-3xl object-cover" />
+        <label className="relative flex h-40 cursor-pointer items-center justify-center overflow-hidden rounded-3xl bg-cake-pink-50 text-cake-pink-300">
+          {imagePreviewUrl ? (
+            <img src={imagePreviewUrl} alt={title || '포트폴리오 이미지'} className="h-full w-full object-cover" />
           ) : (
-            <span className="text-sm font-medium">탭하여 이미지 업로드 (프로토타입: 자동 첨부)</span>
+            <span className="px-4 text-center text-sm font-medium">탭하여 사진 찍기 / 갤러리에서 선택</span>
           )}
-        </div>
+          {uploadingImage && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30 text-xs font-semibold text-white">
+              업로드 중…
+            </div>
+          )}
+          <input type="file" accept="image/*" capture="environment" onChange={handleImageSelect} className="hidden" />
+        </label>
 
         <Card>
           <label className="text-xs font-semibold text-cake-ink-soft">작품 제목</label>
@@ -76,10 +117,18 @@ export default function PortfolioForm() {
         <Card>
           <div className="flex items-center justify-between">
             <p className="text-sm font-bold text-cake-ink">태그</p>
-            <Button variant="secondary" onClick={handleRecommend} loading={recommending} className="text-xs">
+            <Button
+              variant="secondary"
+              onClick={handleRecommend}
+              loading={recommending}
+              disabled={!imageUrl || uploadingImage}
+              className="text-xs"
+            >
               <Sparkle size={14} weight="fill" /> AI 태그 추천
             </Button>
           </div>
+          {!imageUrl && <p className="mt-1 text-xs text-cake-ink-soft">이미지를 먼저 선택하면 태그를 추천받을 수 있어요</p>}
+          {recommendError && <p className="mt-1 text-xs font-medium text-red-500">{recommendError}</p>}
           <div className="mt-2 flex flex-wrap gap-1.5">
             {tags.length === 0 && <p className="text-xs text-cake-ink-soft">등록된 태그가 없어요</p>}
             {tags.map((t) => (
@@ -114,7 +163,27 @@ export default function PortfolioForm() {
           </div>
         </Card>
 
-        <Button className="w-full" loading={saving} disabled={!title} onClick={handleSave}>
+        <Card>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-bold text-cake-ink">AI 변형 허용</p>
+              <p className="mt-0.5 text-xs text-cake-ink-soft">허용하면 고객이 AI로 디자인을 변형해볼 수 있어요</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsInpaintingAllowed((v) => !v)}
+              aria-pressed={isInpaintingAllowed}
+              className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${isInpaintingAllowed ? 'bg-cake-pink-500' : 'bg-gray-200'}`}
+            >
+              <span
+                className={`absolute top-0.5 h-6 w-6 rounded-full bg-white transition-transform ${isInpaintingAllowed ? 'translate-x-5' : 'translate-x-0.5'}`}
+              />
+            </button>
+          </div>
+        </Card>
+
+        {saveError && <p className="text-center text-xs font-medium text-red-500">{saveError}</p>}
+        <Button className="w-full" loading={saving} disabled={!title || !imageUrl || uploadingImage} onClick={handleSave}>
           {existing ? '수정 완료' : '등록하기'}
         </Button>
       </div>
