@@ -27,12 +27,14 @@ function getAuthToken() {
  * 공통 fetch 요청 함수
  */
 async function request(endpoint, options = {}) {
-  const base = options.baseUrl || BASE_URL
-  const url = `${base}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`
+  const url = `${BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`
   const token = getAuthToken()
+  const isFormData = options.body instanceof FormData
 
   const headers = {
-    'Content-Type': 'application/json',
+    // FormData(파일 업로드)일 땐 Content-Type을 직접 지정하지 않는다.
+    // fetch가 알아서 multipart 경계(boundary)를 포함해 설정해준다.
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(options.headers || {}),
   }
 
@@ -87,7 +89,7 @@ export const client = {
     request(endpoint, {
       ...options,
       method: 'POST',
-      body: JSON.stringify(body),
+      body: body instanceof FormData ? body : JSON.stringify(body),
     }),
 
   patch: (endpoint, body, options = {}) =>
