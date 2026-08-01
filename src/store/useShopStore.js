@@ -17,9 +17,29 @@ export const useShopStore = create(
     (set, get) => ({
       profile: INITIAL_STORE_PROFILE,
       reviews: INITIAL_REVIEWS,
+      reviewsError: '',
       suggestions: [],
       priceAnalysis: null,
       profileError: '',
+
+      fetchReviews: async (storeId = 1) => {
+        set({ reviewsError: '' })
+        try {
+          const data = await reviewApi.fetchStoreReviews(storeId)
+          set({
+            reviews: data.map((r) => ({
+              id: r.id,
+              customerName: r.nickname,
+              rating: r.rating,
+              content: r.content,
+              reply: r.replyContent,
+              createdAt: r.createdAt,
+            })),
+          })
+        } catch (err) {
+          set({ reviewsError: err.message || '리뷰를 불러오지 못했어요' })
+        }
+      },
 
       updateProfile: async (data) => {
         set((state) => ({ profile: { ...state.profile, ...data }, profileError: '' }))

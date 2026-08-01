@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Star, Sparkle, TrendUp, IdentificationCard, PencilSimple, Clock } from '@phosphor-icons/react'
 import { useShopStore } from '../../store/useShopStore'
 import { useAuthStore } from '../../store/useAuthStore'
@@ -12,6 +12,8 @@ export default function StoreManage() {
   const {
     profile,
     reviews,
+    reviewsError,
+    fetchReviews,
     suggestions,
     priceAnalysis,
     updateProfile,
@@ -24,6 +26,10 @@ export default function StoreManage() {
     deleteReply,
     replyError,
   } = useShopStore()
+
+  useEffect(() => {
+    fetchReviews()
+  }, [fetchReviews])
 
   const summary = getReviewSummary()
 
@@ -268,6 +274,7 @@ export default function StoreManage() {
               <span key={k} className="rounded-full bg-cake-mint-100 px-2.5 py-1 text-xs font-medium text-cake-mint-600">{k}</span>
             ))}
           </div>
+          {reviewsError && <p className="mt-2 text-xs font-medium text-red-500">{reviewsError}</p>}
           <div className="mt-3 flex flex-col gap-2 divide-y divide-cake-pink-50">
             {reviews.map((r) => (
               <div key={r.id} className="pt-2 first:pt-0">
