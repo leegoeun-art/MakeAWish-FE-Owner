@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Star, Sparkle, TrendUp, IdentificationCard, PencilSimple, Clock } from '@phosphor-icons/react'
 import { useShopStore } from '../../store/useShopStore'
 import { useAuthStore } from '../../store/useAuthStore'
@@ -12,6 +12,8 @@ export default function StoreManage() {
   const {
     profile,
     reviews,
+    reviewsError,
+    fetchReviews,
     suggestions,
     priceAnalysis,
     updateProfile,
@@ -24,6 +26,10 @@ export default function StoreManage() {
     deleteReply,
     replyError,
   } = useShopStore()
+
+  useEffect(() => {
+    fetchReviews()
+  }, [fetchReviews])
 
   const summary = getReviewSummary()
 
@@ -268,6 +274,7 @@ export default function StoreManage() {
               <span key={k} className="rounded-full bg-cake-mint-100 px-2.5 py-1 text-xs font-medium text-cake-mint-600">{k}</span>
             ))}
           </div>
+          {reviewsError && <p className="mt-2 text-xs font-medium text-red-500">{reviewsError}</p>}
           <div className="mt-3 flex flex-col gap-2 divide-y divide-cake-pink-50">
             {reviews.map((r) => (
               <div key={r.id} className="pt-2 first:pt-0">
@@ -381,6 +388,36 @@ export default function StoreManage() {
               {priceAnalysis ? '다시 조회하기' : '시장 가격 조회'}
             </Button>
           )}
+        </Card>
+
+        {/* 계정 및 온보딩 테스트 설정 카드 */}
+        <Card>
+          <p className="text-sm font-bold text-cake-ink">계정 및 온보딩 테스트 설정</p>
+          <p className="mt-1 text-xs text-cake-ink-soft">
+            테스트 중 온보딩(OCR 사업자등록증 인증) 화면을 처음부터 다시 체험할 수 있습니다.
+          </p>
+          <div className="mt-3 flex gap-2">
+            <Button
+              variant="secondary"
+              className="flex-1 text-xs"
+              onClick={() => {
+                useAuthStore.getState().resetOnboarding()
+                alert('온보딩 상태가 초기화되었습니다! 로그아웃 후 다시 로그인하면 온보딩(OCR 인증) 화면으로 이동합니다.')
+              }}
+            >
+              🔄 온보딩 상태 초기화
+            </Button>
+            <Button
+              variant="secondary"
+              className="flex-1 text-xs text-red-500 hover:bg-red-50 hover:text-red-600"
+              onClick={() => {
+                useAuthStore.getState().logout()
+                window.location.href = '/login'
+              }}
+            >
+              🚪 로그아웃
+            </Button>
+          </div>
         </Card>
       </div>
     </div>

@@ -72,13 +72,25 @@ export default function OnboardingOcr() {
         </Card>
       </div>
 
-      <Button
-        onClick={handleFinish}
-        disabled={businessLicenseStatus !== 'DONE'}
-        className="w-full py-3.5 text-base"
-      >
-        시작하기
-      </Button>
+      <div className="flex flex-col gap-2">
+        <Button
+          onClick={handleFinish}
+          disabled={businessLicenseStatus !== 'DONE'}
+          className="w-full py-3.5 text-base"
+        >
+          시작하기
+        </Button>
+        <button
+          type="button"
+          onClick={() => {
+            useAuthStore.getState().logout()
+            navigate('/login')
+          }}
+          className="py-1 text-center text-xs font-medium text-cake-ink-soft transition hover:text-cake-pink-600"
+        >
+          ← 로그인 화면으로 돌아가기 (로그아웃)
+        </button>
+      </div>
     </div>
   )
 }
