@@ -9,18 +9,45 @@ import {
   REVIEW_SUMMARY,
   STORE_INTRO_DRAFT,
 } from '../mocks/seed'
+import * as storeApi from '../api/storeApi'
+import * as reviewApi from '../api/reviewApi'
 
 export const useShopStore = create(
   persist(
     (set, get) => ({
       profile: INITIAL_STORE_PROFILE,
       reviews: INITIAL_REVIEWS,
+      reviewsError: '',
       suggestions: [],
       priceAnalysis: null,
+      profileError: '',
+
+      fetchReviews: async (storeId = 1) => {
+        set({ reviewsError: '' })
+        try {
+          const data = await reviewApi.fetchStoreReviews(storeId)
+          set({
+            reviews: data.map((r) => ({
+              id: r.id,
+              customerName: r.nickname,
+              rating: r.rating,
+              content: r.content,
+              reply: r.replyContent,
+              createdAt: r.createdAt,
+            })),
+          })
+        } catch (err) {
+          set({ reviewsError: err.message || '리뷰를 불러오지 못했어요' })
+        }
+      },
 
       updateProfile: async (data) => {
-        await randomDelay()
-        set((state) => ({ profile: { ...state.profile, ...data } }))
+        set((state) => ({ profile: { ...state.profile, ...data }, profileError: '' }))
+        try {
+          await storeApi.updateStoreProfile(data)
+        } catch (err) {
+          set({ profileError: err.message || '저장에 실패했어요. 다시 시도해주세요' })
+        }
       },
 
       generateIntro: async () => {
@@ -29,11 +56,30 @@ export const useShopStore = create(
         return STORE_INTRO_DRAFT
       },
 
+      replyError: '',
+
       replyToReview: async (reviewId, text) => {
-        await randomDelay()
-        set((state) => ({
-          reviews: state.reviews.map((r) => (r.id === reviewId ? { ...r, reply: text } : r)),
-        }))
+        set({ replyError: '' })
+        try {
+          await reviewApi.replyToReview(reviewId, text)
+          set((state) => ({
+            reviews: state.reviews.map((r) => (r.id === reviewId ? { ...r, reply: text } : r)),
+          }))
+        } catch (err) {
+          set({ replyError: err.message || '답글 등록에 실패했어요' })
+        }
+      },
+
+      deleteReply: async (reviewId) => {
+        set({ replyError: '' })
+        try {
+          await reviewApi.deleteReviewReply(reviewId)
+          set((state) => ({
+            reviews: state.reviews.map((r) => (r.id === reviewId ? { ...r, reply: null } : r)),
+          }))
+        } catch (err) {
+          set({ replyError: err.message || '답글 삭제에 실패했어요' })
+        }
       },
 
       getReviewSummary: () => REVIEW_SUMMARY,
