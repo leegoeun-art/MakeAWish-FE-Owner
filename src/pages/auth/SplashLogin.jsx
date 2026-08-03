@@ -1,36 +1,18 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { GoogleLogin } from '@react-oauth/google'
-import { ArrowCounterClockwise, Code } from '@phosphor-icons/react'
+import { ArrowCounterClockwise } from '@phosphor-icons/react'
 import { useAuthStore } from '../../store/useAuthStore'
-import Button from '../../components/ui/Button'
 
 export default function SplashLogin() {
   const navigate = useNavigate()
   const { loginWithGoogle, onboarded, resetOnboarding } = useAuthStore()
-  const [loading, setLoading] = useState(false)
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      setLoading(true)
       await loginWithGoogle(credentialResponse.credential)
-      setLoading(false)
       navigate(onboarded ? '/home' : '/onboarding')
     } catch (error) {
-      setLoading(false)
       alert('구글 로그인에 실패했습니다: ' + (error.message || '인증 오류'))
-    }
-  }
-
-  const handleDevMasterLogin = async () => {
-    try {
-      setLoading(true)
-      await loginWithGoogle('master')
-      setLoading(false)
-      navigate(onboarded ? '/home' : '/onboarding')
-    } catch (error) {
-      setLoading(false)
-      alert('로그인에 실패했습니다: ' + (error.message || '인증 오류'))
     }
   }
 
@@ -81,18 +63,8 @@ export default function SplashLogin() {
           로그인 시 파트너 이용약관에 동의하는 것으로 간주돼요
         </p>
 
-        {/* 2. 개발/테스트용 간편 로그인 및 온보딩 리셋 영역 */}
+        {/* 2. 온보딩 리셋 영역 (개발/테스트용) */}
         <div className="mt-4 flex w-full flex-col items-center gap-2.5 rounded-2xl bg-white/60 p-3 ring-1 ring-cake-pink-100">
-          <Button
-            variant="secondary"
-            onClick={handleDevMasterLogin}
-            loading={loading}
-            className="w-full py-2.5 text-xs text-cake-ink font-semibold"
-          >
-            <Code size={16} className="text-cake-pink-500" />
-            🛠️ 개발 모드 간편 로그인 (Master 계정)
-          </Button>
-
           <button
             type="button"
             onClick={handleResetOnboarding}
